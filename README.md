@@ -95,8 +95,25 @@ IF(ISBLANK([TableName[ColumnName]]), BLANK(),
         UNICHAR(129153) ,
         UNICHAR(129155) ))
 
+**Moving Average with Custom Period**
 
 
+Moving Avg = CALCULATE(
+                 AVERAGE([YourMeasure]),
+                 FILTER(
+                     ALL('Date'),
+                     'Date'[Date] >= MAX('Date'[Date]) - 30 &&
+                     'Date'[Date] <= MAX('Date'[Date])
+                 )
+             )
+
+
+**Rolling 12 months Average:**
+
+Rolling 12 Months Avg = AVERAGEX(
+                          DATESINPERIOD('Date'[Date], LASTDATE('Date'[Date]), -12, MONTH),
+                          [YourMeasure]
+                       )
 
 
 
