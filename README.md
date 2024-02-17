@@ -12,6 +12,9 @@
 
 month sort order is nothing but the month number starting from 1 for april and so on
 
+
+**Previous Year Sales** = Calculate([Sales],Sameperiodlastyear('Calendar Master'[Date]))
+
 **Previous Year Sales Till Date** = 
 var maxDate = 
 DATE(YEAR(MAX('Calendar Master'[Date]))-1,MONTH(MAX('Calendar Master'[Date])), DAY(MAX('Calendar Master'[Date])))
@@ -85,6 +88,15 @@ VAR _cumulativeSum = SUMX(FILTER(_sumTable,[Income]>=_current),[Income])
 RETURN 
 DIVIDE(_cumulativeSum,_total)
 
+**Consider a scenario of creating dynamic pareto tehn how you can create the scenaio for the same using DAX**
+
+Selected Pareto = SWITCH(TRUE(), SELECTEDVALUE(Dimensions1[dimension value]) = 0,[Sales Pareto],
+SELECTEDVALUE(Dimensions1[dimension value]) = 1,[Profit Pareto],
+SELECTEDVALUE(Dimensions1[dimension value]) = 2,[Loss Pareto],
+SELECTEDVALUE(Dimensions1[dimension value]) = 3,[Discount Pareto],
+[Sales Pareto])-- this is by default you are giving sales pareto 
+
+
 **If you want arrow as up and down simple then use this formula for considering the unichar**
 
 
@@ -114,6 +126,14 @@ Rolling 12 Months Avg = AVERAGEX(
                           DATESINPERIOD('Date'[Date], LASTDATE('Date'[Date]), -12, MONTH),
                           [YourMeasure]
                        )
+
+
+
+
+
+
+
+
 
 
 
