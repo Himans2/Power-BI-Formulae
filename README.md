@@ -33,14 +33,13 @@ CALCULATE([Sales], FILTER(ALL('Calendar Master'),
 **Previous Month Till Date Net Sales** = 
 
 Var a = CALCULATE(MIN('Calendar Master'[Date]),FILTER(ALL('Calendar Master'), 'Calendar Master'[Fiscal Year] = MAX('Calendar Master'[Fiscal Year]) && 'Calendar Master'[Month Index] = MAX('Calendar Master'[Month Index])-1))
---var b = LASTDATE('Calendar Master'[Date])
 Var c = CALCULATE(MAX('Calendar Master'[Date]),ALL('Calendar Master'))
-Var _rak=DATE(YEAR(c),MONTH(c)-1,DAY(c))
+Var him=DATE(YEAR(c),MONTH(c)-1,DAY(c))
 var d =CALCULATE(MAX('Calendar Master'[Date]),FILTER(ALL('Calendar Master'), 'Calendar Master'[Fiscal Year] = MAX('Calendar Master'[Fiscal Year]) && 'Calendar Master'[Month Index] = MAX('Calendar Master'[Month Index])-1))
 Var e = IF(MONTH(MAX('Calendar Master'[Date]))=MONTH(TODAY()),c,d)
 var f = CALCULATE([Income],PREVIOUSMONTH('Calendar Master'[Date]))
 var g = CALCULATE([Income], FILTER(ALL('Calendar Master'), 
-'Calendar Master'[Date] >= a && 'Calendar Master'[Date] <= _rak))
+'Calendar Master'[Date] >= a && 'Calendar Master'[Date] <= him))
 
 return
 IF(MONTH(MAX('Calendar Master'[Date])) =MONTH(c),g,f)
