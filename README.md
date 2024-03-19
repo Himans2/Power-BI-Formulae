@@ -1,138 +1,172 @@
-# Power-BI-Formulae
 
 
-**In this Repository i will be writing the all DAX formulaes which i have used so far in Power BI.The main purpose of this repository is to make available all the Power BI related DAXs in one Place.**
- 
------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-**Year Related Formulaes**
-**These formulaes are according to the Fiscal Year**
 
-**Current Year Sales** =   CALCULATE([Sales],FILTER('Calendar Master','Calendar Master'[Fiscal Year]=MAX('Calendar Master'[Fiscal Year])
- && 'Calendar Master'[Month Sort Order] <= MAX('Calendar Master'[Month Sort Order]) && 'Calendar Master'[Date] <= max('Calendar Master'[Date])))
+# **Power BI Formulas**
 
-month sort order is nothing but the month number starting from 1 for april and so on
+**In this repository, I will be compiling all the DAX formulas I have used so far in Power BI. The main purpose of this repository is to provide a centralized location for all Power BI-related DAX formulas.**
 
+---
 
-**Previous Year Sales** = Calculate([Sales],Sameperiodlastyear('Calendar Master'[Date]))
+## Year-Related Formulas
+*(These formulas are according to the Fiscal Year)*
 
-**Previous Year Sales Till Date** = 
-var maxDate = 
-DATE(YEAR(MAX('Calendar Master'[Date]))-1,MONTH(MAX('Calendar Master'[Date])), DAY(MAX('Calendar Master'[Date])))
-var minDate = 
-DATE(YEAR(MIN('Calendar Master'[Date]))-1,MONTH(MIN('Calendar Master'[Date])), DAY(MIN('Calendar Master'[Date])))
-return
-CALCULATE([Sales], FILTER(ALL('Calendar Master'), 
-'Calendar Master'[Date] >= minDate && 'Calendar Master'[Date] <= maxDate))
+### Current Year Sales
+```DAX
+= CALCULATE(
+    [Sales],
+    FILTER(
+        'Calendar Master',
+        'Calendar Master'[Fiscal Year] = MAX('Calendar Master'[Fiscal Year])
+        && 'Calendar Master'[Month Sort Order] <= MAX('Calendar Master'[Month Sort Order])
+        && 'Calendar Master'[Date] <= MAX('Calendar Master'[Date])
+    )
+)
+(Explanation: This formula calculates the sales for the current fiscal year up to the current date.)
 
+**Previous Year Sales
+DAX**
 
-**MTD Net Sales** = CALCULATE([Sales],FILTER('Calendar Master','Calendar Master'[Month Sort Order]=MAX('Calendar Master'[Month Sort Order])))
+= CALCULATE(
+    [Sales],
+    SAMEPERIODLASTYEAR('Calendar Master'[Date])
+)
+(Explanation: This formula calculates the sales for the same period in the previous year.)
 
+**Previous Year Sales Till Date**
+DAX
 
-**If i have the current date till 12 march then it will calculate the previous month till date 12 feb and will compare the sales.So i have designed this formula according to that need**
+= VAR maxDate = DATE(YEAR(MAX('Calendar Master'[Date])) - 1, MONTH(MAX('Calendar Master'[Date])), DAY(MAX('Calendar Master'[Date])))
+VAR minDate = DATE(YEAR(MIN('Calendar Master'[Date])) - 1, MONTH(MIN('Calendar Master'[Date])), DAY(MIN('Calendar Master'[Date])))
+RETURN
+    CALCULATE(
+        [Sales],
+        FILTER(
+            ALL('Calendar Master'),
+            'Calendar Master'[Date] >= minDate && 'Calendar Master'[Date] <= maxDate
+        )
+    )
+(Explanation: This formula calculates the sales for the same period in the previous year up to the current date.)
 
-**Previous Month Till Date Net Sales** = 
+**MTD Net Sales**
+DAX
 
-Var a = CALCULATE(MIN('Calendar Master'[Date]),FILTER(ALL('Calendar Master'), 'Calendar Master'[Fiscal Year] = MAX('Calendar Master'[Fiscal Year]) && 'Calendar Master'[Month Index] = MAX('Calendar Master'[Month Index])-1))
-Var c = CALCULATE(MAX('Calendar Master'[Date]),ALL('Calendar Master'))
-Var him=DATE(YEAR(c),MONTH(c)-1,DAY(c))
-var d =CALCULATE(MAX('Calendar Master'[Date]),FILTER(ALL('Calendar Master'), 'Calendar Master'[Fiscal Year] = MAX('Calendar Master'[Fiscal Year]) && 'Calendar Master'[Month Index] = MAX('Calendar Master'[Month Index])-1))
-Var e = IF(MONTH(MAX('Calendar Master'[Date]))=MONTH(TODAY()),c,d)
-var f = CALCULATE([Income],PREVIOUSMONTH('Calendar Master'[Date]))
-var g = CALCULATE([Income], FILTER(ALL('Calendar Master'), 
-'Calendar Master'[Date] >= a && 'Calendar Master'[Date] <= him))
+= CALCULATE(
+    [Sales],
+    FILTER(
+        'Calendar Master',
+        'Calendar Master'[Month Sort Order] = MAX('Calendar Master'[Month Sort Order])
+    )
+)
+(Explanation: This formula calculates the Month-to-Date (MTD) net sales.)
 
-return
-IF(MONTH(MAX('Calendar Master'[Date])) =MONTH(c),g,f)
+**Previous Month Till Date Net Sales**
+DAX
 
-**QTD Net Sales** = CALCULATE([Sales],FILTER('Calendar Master','Calendar Master'[Fiscal Qtr]=MAX('Calendar Master'[Fiscal Qtr])))
+= VAR a = CALCULATE(MIN('Calendar Master'[Date]), FILTER(ALL('Calendar Master'), 'Calendar Master'[Fiscal Year] = MAX('Calendar Master'[Fiscal Year]) && 'Calendar Master'[Month Index] = MAX('Calendar Master'[Month Index]) - 1))
+VAR c = CALCULATE(MAX('Calendar Master'[Date]), ALL('Calendar Master'))
+VAR him = DATE(YEAR(c), MONTH(c) - 1, DAY(c))
+VAR d = CALCULATE(MAX('Calendar Master'[Date]), FILTER(ALL('Calendar Master'), 'Calendar Master'[Fiscal Year] = MAX('Calendar Master'[Fiscal Year]) && 'Calendar Master'[Month Index] = MAX('Calendar Master'[Month Index]) - 1))
+VAR e = IF(MONTH(MAX('Calendar Master'[Date])) = MONTH(TODAY()), c, d)
+VAR f = CALCULATE([Income], PREVIOUSMONTH('Calendar Master'[Date]))
+VAR g = CALCULATE([Income], FILTER(ALL('Calendar Master'), 'Calendar Master'[Date] >= a && 'Calendar Master'[Date] <= him))
 
+RETURN
+    IF(MONTH(MAX('Calendar Master'[Date])) = MONTH(c), g, f)
+(Explanation: This formula calculates the net sales from the previous month up to the same date as today.)
 
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+**QTD Net Sales**
+DAX
 
-**Consider a scenario if you have the condition that you have to choose the dynamic dimension and measures and you have made the Top N filter using parameter and now you want if i select TopN filter as 5 then should give me dept and particular measure for the same and now how these filters will work if you choose dynamic dimension and measures then you have to use this formula** 
+= CALCULATE(
+    [Sales],
+    FILTER(
+        'Calendar Master',
+        'Calendar Master'[Fiscal Qtr] = MAX('Calendar Master'[Fiscal Qtr])
+    )
+)
+(Explanation: This formula calculates the Quarter-to-Date (QTD) net sales.)
 
-Rank Formula = 
+**Dynamic Measure and Dimension Selection**
+Rank Formula
+DAX
 
-SWITCH (
+= SWITCH (
     TRUE (),
-    SELECTEDVALUE ('field parameter')
-        = "Table Name'[Column Name]",
-        RANKX (
-            ALLSELECTED ('Table Name'[Column Name]),
-            [Regular Income],
-            ,
-            DESC
-        ),
-    SELECTEDVALUE ('field parameter')
-        = "Table Name'[Column Name]",
-        RANKX (
-            ALLSELECTED ('Table Name'[Column Name]),
-            [Regular Income],
-            ,
-            DESC
-
+    SELECTEDVALUE ('field parameter') = "Table Name'[Column Name]",
+    RANKX (
+        ALLSELECTED ('Table Name'[Column Name]),
+        [Regular Income],
+        ,
+        DESC
+    ),
+    SELECTEDVALUE ('field parameter') = "Table Name'[Column Name]",
+    RANKX (
+        ALLSELECTED ('Table Name'[Column Name]),
+        [Regular Income],
+        ,
+        DESC
+    )
 )
-)
+(Explanation: This formula calculates the rank based on the selected measure and dimension.)
 
+**Pareto Formula**
+DAX
 
-**Pareto Formula** 
-
- Pareto = 
-VAR _total = CALCULATE([Income],ALLSELECTED('Table Name'[Column Name]))
+= VAR _total = CALCULATE([Income], ALLSELECTED('Table Name'[Column Name]))
 VAR _current = [Income]
-VAR _sumTable = SUMMARIZE(ALLSELECTED(Table Name),'Table Name'[Column Name],"Name the column",[Income])
-VAR _cumulativeSum = SUMX(FILTER(_sumTable,[Income]>=_current),[Income])
+VAR _sumTable = SUMMARIZE(ALLSELECTED(Table Name), 'Table Name'[Column Name], "Name the column", [Income])
+VAR _cumulativeSum = SUMX(FILTER(_sumTable, [Income] >= _current), [Income])
 
+RETURN
+    DIVIDE(_cumulativeSum, _total)
+(Explanation: This formula calculates the Pareto analysis for the selected measure and dimension.)
 
-RETURN 
-DIVIDE(_cumulativeSum,_total)
+**Selected Pareto**
+DAX
 
-**Consider a scenario of creating dynamic pareto then how you can create the scenaio for the same using DAX**
+= SWITCH(TRUE(), 
+    SELECTEDVALUE(Dimensions1[dimension value]) = 0, [Sales Pareto],
+    SELECTEDVALUE(Dimensions1[dimension value]) = 1, [Profit Pareto],
+    SELECTEDVALUE(Dimensions1[dimension value]) = 2, [Loss Pareto],
+    SELECTEDVALUE(Dimensions1[dimension value]) = 3, [Discount Pareto],
+    [Sales Pareto]
+)
+(Explanation: This formula dynamically selects the appropriate Pareto analysis based on the selected dimension.)
 
-Selected Pareto = SWITCH(TRUE(), SELECTEDVALUE(Dimensions1[dimension value]) = 0,[Sales Pareto],
-SELECTEDVALUE(Dimensions1[dimension value]) = 1,[Profit Pareto],
-SELECTEDVALUE(Dimensions1[dimension value]) = 2,[Loss Pareto],
-SELECTEDVALUE(Dimensions1[dimension value]) = 3,[Discount Pareto],
-[Sales Pareto])-- this is by default you are giving sales pareto 
+**Arrow**
+DAX
 
-
-**If you want arrow as up and down simple then use this formula for considering the unichar**
-
-
-Arrow = 
-
-IF(ISBLANK([TableName[ColumnName]]), BLANK(), 
-    IF(TableName[ColumnName] >= 0, 
-        UNICHAR(129153) ,
-        UNICHAR(129155) ))
+= IF(
+    ISBLANK([TableName[ColumnName]]),
+    BLANK(), 
+    IF(
+        TableName[ColumnName] >= 0,
+        UNICHAR(129153),
+        UNICHAR(129155)
+    )
+)
+(Explanation: This formula generates an arrow (up or down) based on the value of a column.)
 
 **Moving Average with Custom Period**
+DAX
 
+= CALCULATE(
+    AVERAGE([YourMeasure]),
+    FILTER(
+        ALL('Date'),
+        'Date'[Date] >= MAX('Date'[Date]) - 30 &&
+        'Date'[Date] <= MAX('Date'[Date])
+    )
+)
+(Explanation: This formula calculates the moving average with a custom period of 30 days.)
 
-Moving Avg = CALCULATE(
-                 AVERAGE([YourMeasure]),
-                 FILTER(
-                     ALL('Date'),
-                     'Date'[Date] >= MAX('Date'[Date]) - 30 &&
-                     'Date'[Date] <= MAX('Date'[Date])
-                 )
-             )
+**Rolling 12 Months Average**
+DAX
 
-
-**Rolling 12 months Average:**
-
-Rolling 12 Months Avg = AVERAGEX(
-                          DATESINPERIOD('Date'[Date], LASTDATE('Date'[Date]), -12, MONTH),
-                          [YourMeasure]
-                       )
-
-
-
-
-
-
-
-
-
+= AVERAGEX(
+    DATESINPERIOD('Date'[Date], LASTDATE('Date'[Date]), -12, MONTH),
+    [YourMeasure]
+)
+(Explanation: This formula calculates the rolling 12-month average for a measure.)
 
 
