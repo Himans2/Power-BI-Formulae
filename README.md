@@ -88,7 +88,7 @@ VAR _cumulativeSum = SUMX(FILTER(_sumTable,[Income]>=_current),[Income])
 RETURN 
 DIVIDE(_cumulativeSum,_total)
 
-**Consider a scenario of creating dynamic pareto tehn how you can create the scenaio for the same using DAX**
+**Consider a scenario of creating dynamic pareto then how you can create the scenaio for the same using DAX**
 
 Selected Pareto = SWITCH(TRUE(), SELECTEDVALUE(Dimensions1[dimension value]) = 0,[Sales Pareto],
 SELECTEDVALUE(Dimensions1[dimension value]) = 1,[Profit Pareto],
