@@ -10,7 +10,7 @@
 ## Year-Related Formulas
 *(These formulas are according to the Fiscal Year)*
 
-### Current Year Sales
+Current Year Sales
 ```DAX
 = CALCULATE(
     [Sales],
@@ -23,8 +23,10 @@
 )
 (Explanation: This formula calculates the sales for the current fiscal year up to the current date.)
 
-**Previous Year Sales
-DAX**
+
+
+**Previous Year Sales**
+DAX
 
 = CALCULATE(
     [Sales],
